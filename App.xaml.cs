@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using System.Windows;
 using CQCopyPasteAdapter.WebApi;
+using System.Net;
 
 namespace CQCopyPasteAdapter
 {
@@ -20,7 +21,7 @@ namespace CQCopyPasteAdapter
     /// </summary>
     public partial class App : Application
     {
-        private static IDisposable webApp;
+        private HttpListener _listener;
         public static SqliteKvStore<NotifiedDictionary<String, String>> QQWindows { get; private set; }
 
         private void App_OnStartup(object sender, StartupEventArgs e)
@@ -33,10 +34,7 @@ namespace CQCopyPasteAdapter
             QQWindows = new SqliteKvStore<NotifiedDictionary<String, String>>(cnn, "QQWindows");
 
             Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
-
-            Task.Run(() => {
-                webApp = WebApp.Start<Startup>(url: "http://+:9000/");
-            });
+            
         }
 
         void Current_DispatcherUnhandledException(object sender,
