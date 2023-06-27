@@ -1,0 +1,25 @@
+﻿<Window x:Class="CQCopyPasteAdapter.MessageTester"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:CQCopyPasteAdapter"
+        mc:Ignorable="d" FontSize="20"
+        Title="MessageTester" Height="450" Width="800">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <ComboBox x:Name="QQWindowsComboBox" Grid.Row="0" Margin="10"
+                  ItemsSource="{x:Static local:App.QQWindows}"
+                  DisplayMemberPath="Key"
+                  SelectedValuePath="." />
+
+        <TextBox x:Name="MessageTextBox" Grid.Row="1" Margin="10" />
+
+        <Button x:Name="SendMessageButton" Grid.Row="2" Margin="10" Content="发送" Click="SendMessageButton_Click" />
+    </Grid>
+</Window>
