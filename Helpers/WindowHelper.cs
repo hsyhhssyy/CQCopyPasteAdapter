@@ -140,4 +140,45 @@ public static class WindowHelper
         SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
 
+    public static void SendCtrlA()
+    {
+        INPUT[] inputs = new INPUT[4];
+
+        // Press Ctrl
+        inputs[0].type = INPUT_KEYBOARD;
+        inputs[0].u.ki.wVk = 0x11; // VK_CONTROL
+
+        // Press A
+        inputs[1].type = INPUT_KEYBOARD;
+        inputs[1].u.ki.wVk = 0x41; // VK_A
+
+        // Release A
+        inputs[2].type = INPUT_KEYBOARD;
+        inputs[2].u.ki.wVk = 0x41; // VK_A
+        inputs[2].u.ki.dwFlags = KEYEVENTF_KEYUP;
+
+        // Release Ctrl
+        inputs[3].type = INPUT_KEYBOARD;
+        inputs[3].u.ki.wVk = 0x11; // VK_CONTROL
+        inputs[3].u.ki.dwFlags = KEYEVENTF_KEYUP;
+
+        SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+    }
+
+    public static void SendDelete()
+    {
+        INPUT[] inputs = new INPUT[2];
+
+        // Press Delete
+        inputs[0].type = INPUT_KEYBOARD;
+        inputs[0].u.ki.wVk = 0x2E; // VK_DELETE
+
+        // Release Delete
+        inputs[1].type = INPUT_KEYBOARD;
+        inputs[1].u.ki.wVk = 0x2E; // VK_DELETE
+        inputs[1].u.ki.dwFlags = KEYEVENTF_KEYUP;
+
+        SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+    }
+
 }

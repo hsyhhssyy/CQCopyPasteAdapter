@@ -36,8 +36,12 @@ namespace CQCopyPasteAdapter
                 var hwnd = IntPtr.Parse(hwndStr);
                 WindowHelper.BringWindowToFront(hwnd);
                 Clipboard.SetText(message);
+                WindowHelper.SendCtrlA();
+                Task.Delay(100).Wait();
+                WindowHelper.SendDelete();
+                Task.Delay(100).Wait();
                 WindowHelper.SendCtrlV();
-                Task.Delay(500).Wait();
+                Task.Delay(100).Wait();
                 WindowHelper.SendCtrlEnter();
             }
         }
