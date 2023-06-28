@@ -13,6 +13,7 @@ using System.Web.Http;
 using System.Windows;
 using CQCopyPasteAdapter.WebApi;
 using System.Net;
+using System.Windows.Threading;
 
 namespace CQCopyPasteAdapter
 {
@@ -21,21 +22,25 @@ namespace CQCopyPasteAdapter
     /// </summary>
     public partial class App : Application
     {
-        private HttpListener _listener;
         public static SqliteKvStore<NotifiedDictionary<String, String>> QQWindows { get; private set; }
+        public static SqliteKvStore<string> Settings { get; set; }
+        public static Dispatcher PublicDispatcher { get; set; }
 
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
             //读取Sqlite
-            string dbfile = @"Data Source=IServiceWidget.db";
+            string dbfile = @"Data Source=CQCopyPasteData.db";
             SQLiteConnection cnn = new SQLiteConnection(dbfile);
             cnn.Open();
 
             QQWindows = new SqliteKvStore<NotifiedDictionary<String, String>>(cnn, "QQWindows");
+            Settings = new SqliteKvStore<String>(cnn, "Settings");
 
             Current.DispatcherUnhandledException += Current_DispatcherUnhandledException;
-            
+
+            QQOperator.StartMainLoop();
         }
+
 
         void Current_DispatcherUnhandledException(object sender,
             System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

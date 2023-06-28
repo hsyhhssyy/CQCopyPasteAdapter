@@ -68,5 +68,28 @@ namespace CQCopyPasteAdapter.ViewModel
 
 
         }
+
+        private void BtnAddChannel_Click(object sender, RoutedEventArgs e)
+        {
+            InputBox inputBox = new InputBox();
+            if (inputBox.ShowDialog() == true)
+            {
+                string answer = inputBox.Answer;
+
+                App.QQWindows.Add(answer,new NotifiedDictionary<string, string>());
+
+                var qqWindow = App.QQWindows[answer];
+
+                var item = new MultiPropertyListViewItem();
+                item.Data = qqWindow;
+                item.Properties["ChannelId"] = answer;
+                item.Properties["HWND"] = qqWindow.GetValueOrDefault("HWND") ?? "";
+                item.Properties["Title"] = qqWindow.GetValueOrDefault("Title") ?? "";
+                QQWindows.Add(item);
+
+                grdQQWindows.ItemsSource = null;
+                grdQQWindows.ItemsSource = QQWindows;
+            }
+        }
     }
 }

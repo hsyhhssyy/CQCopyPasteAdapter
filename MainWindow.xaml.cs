@@ -24,6 +24,8 @@ namespace CQCopyPasteAdapter
         public MainWindow()
         {
             InitializeComponent();
+
+            App.PublicDispatcher = Dispatcher;
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

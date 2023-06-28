@@ -164,6 +164,22 @@ public static class WindowHelper
 
         SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
     }
+    
+    public static void SendEnter()
+    {
+        INPUT[] inputs = new INPUT[2];
+
+        // Press Enter
+        inputs[0].type = INPUT_KEYBOARD;
+        inputs[0].u.ki.wVk = 0x0D; // VK_RETURN
+
+        // Release Enter
+        inputs[1].type = INPUT_KEYBOARD;
+        inputs[1].u.ki.wVk = 0x0D; // VK_RETURN
+        inputs[1].u.ki.dwFlags = KEYEVENTF_KEYUP;
+
+        SendInput((uint)inputs.Length, inputs, Marshal.SizeOf(typeof(INPUT)));
+    }
 
     public static void SendDelete()
     {
