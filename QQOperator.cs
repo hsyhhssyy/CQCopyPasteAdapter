@@ -16,15 +16,21 @@ using CQCopyPasteAdapter.Logging;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using static System.Net.Mime.MediaTypeNames;
+using static CQCopyPasteAdapter.QQOperator;
 
 namespace CQCopyPasteAdapter
 {
     public static class QQOperator
     {
+        public class MessageBatch
+        {
+            public string ChannelId { get; set; }
+            public List<Dictionary<String, object>> Messages { get; set; } = new List<Dictionary<string, object>>();
+        }
+
         private static Object Lock=new Object();
         private static Task QQTask = Task.CompletedTask;
         private static List<String> processedTask = new List<String>();
-        private static Dictionary<String, List<Dictionary<String, object>>> messageBatches = new ();
 
 
         public static void StartMainLoop()
@@ -63,6 +69,8 @@ namespace CQCopyPasteAdapter
 
                     if (getTaskResponse["messages"] is List<object> messageList)
                     {
+                        var batchToAdd = new List<MessageBatch>();
+
                         foreach (var message in messageList.OfType<Dictionary<String, object>>())
                         {
                             if (processedTask.Contains(message.GetValueOrDefault("uuid")?.ToString() ?? ""))
@@ -73,33 +81,40 @@ namespace CQCopyPasteAdapter
                             processedTask.Add(message.GetValueOrDefault("uuid")?.ToString() ?? "");
 
                             var channelId = message.GetValueOrDefault("channel_id")?.ToString();
-                            if (!messageBatches.ContainsKey(channelId))
+                            if (!batchToAdd.Any(b=>b.ChannelId==channelId))
                             {
-                                messageBatches[channelId] = new List<Dictionary<string, object>>();
+                                batchToAdd.Add(new MessageBatch()
+                                {
+                                    ChannelId = channelId
+                                });
                             }
+
+                            var batch = batchToAdd.First(b => b.ChannelId == channelId);
+
 
                             switch (message.GetValueOrDefault("type"))
                             {
                                 case "Text":
                                 case "At":
                                 case "Image":
-                                    messageBatches[channelId].Add(message);
+                                    batch.Messages.Add(message);
                                     break;
                             }
                         }
+
+                        foreach (var batch in batchToAdd)
+                        {
+                            lock (Lock)
+                            {
+                                QQTask = QQTask.ContinueWith(_ =>
+                                {
+                                    SendMessage(batch.ChannelId, batch.Messages);
+                                });
+                            }
+                        }
+
                     }
 
-                    foreach (var channel in messageBatches.Keys.ToList())
-                    {
-                        lock (Lock)
-                        {
-                            QQTask = QQTask.ContinueWith(_ =>
-                            {
-                                SendMessage(channel, messageBatches[channel]);
-                                messageBatches.Remove(channel);
-                            });
-                        }
-                    }
 
                     Thread.Sleep(500);
                 }
@@ -118,6 +133,11 @@ namespace CQCopyPasteAdapter
             }
 
             return IntPtr.Zero;
+        }
+
+        private static void Delay(int time=500)
+        {
+            Task.Delay(time).Wait();
         }
 
         private static void SendMessage(String channel, List<Dictionary<String,object>> batch)
@@ -140,10 +160,10 @@ namespace CQCopyPasteAdapter
 
                         //删掉文本框中现有的内容
                         WindowHelper.SendCtrlA();
-                        Task.Delay(100).Wait();
+                        Delay();
                         WindowHelper.SendDelete();
-                        Task.Delay(100).Wait();
-                        
+                        Delay();
+
                         foreach (var message in batch)
                         {
                             switch (message.GetValueOrDefault("type"))
@@ -154,14 +174,14 @@ namespace CQCopyPasteAdapter
                                     {
                                         byte[] imageBytes = Convert.FromBase64String(base64ImageData);
 
-                                        var file = new FileInfo("TempImage.png");
+                                        //var file = new FileInfo("TempImage.png");
 
                                         using (var stream = new MemoryStream(imageBytes))
                                         {
                                             stream.Position = 0; // Reset the stream position
                                             using (var image = System.Drawing.Image.FromStream(stream))
                                             {
-                                                image.Save(file.FullName, System.Drawing.Imaging.ImageFormat.Png);
+                                                //image.Save(file.FullName, System.Drawing.Imaging.ImageFormat.Png);
                                                 var bitmap = new Bitmap(image);
                                                 var bitmapSource = Imaging.CreateBitmapSourceFromHBitmap(
                                                     bitmap.GetHbitmap(),
@@ -175,7 +195,7 @@ namespace CQCopyPasteAdapter
                                         }
                                         
                                         WindowHelper.SendCtrlV();
-                                        Task.Delay(500).Wait();
+                                        Delay();
                                     }
                                     break;
                                 case "Text":
@@ -185,7 +205,7 @@ namespace CQCopyPasteAdapter
                                         Clipboard.Clear();
                                         Clipboard.SetText(text);
                                         WindowHelper.SendCtrlV();
-                                        Task.Delay(500).Wait();
+                                        Delay();
                                     }
                                     break;
                                 case "At":
@@ -195,15 +215,15 @@ namespace CQCopyPasteAdapter
                                         Clipboard.Clear();
                                         Clipboard.SetText("@");
                                         WindowHelper.SendCtrlV();
-                                        Task.Delay(200).Wait();
+                                        Delay();
 
                                         Clipboard.Clear();
                                         Clipboard.SetText(target);
                                         WindowHelper.SendCtrlV();
-                                        Task.Delay(1000).Wait();
+                                        Delay();
 
                                         WindowHelper.SendEnter();
-                                        Task.Delay(500).Wait();
+                                        Delay();
                                     }
                                     break;
                             }

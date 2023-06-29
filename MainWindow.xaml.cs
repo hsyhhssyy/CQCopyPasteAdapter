@@ -13,6 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using CQCopyPasteAdapter.Logging;
 
 namespace CQCopyPasteAdapter
 {
@@ -26,6 +27,16 @@ namespace CQCopyPasteAdapter
             InitializeComponent();
 
             App.PublicDispatcher = Dispatcher;
+
+            Logger.Current.OnLog += CurrentLogger_OnLog;
+        }
+
+        private void CurrentLogger_OnLog(object? sender, Logger.LogReceivedEventArgs e)
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                txtLogs.Text += Environment.NewLine + e.Message;
+            });
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
