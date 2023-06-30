@@ -54,16 +54,18 @@ namespace CQCopyPasteAdapter.ViewModel
             var wind = new PickHwndDialog();
             wind.ShowDialog();
 
-            if (wind.HWND != IntPtr.Zero)
+            if (wind.Hwnd != IntPtr.Zero)
             {
-                var dict = data.Data as NotifiedDictionary<String, String>;
-                dict["HWND"] = wind.HWND.ToString();
-                dict["Title"]=wind.Title;
-                data.Properties["HWND"] = dict.GetValueOrDefault("HWND") ?? "";
-                data.Properties["Title"] = dict.GetValueOrDefault("Title") ?? "";
+                if (data.Data is NotifiedDictionary<string, string> dict)
+                {
+                    dict["HWND"] = wind.Hwnd.ToString();
+                    dict["Title"] = wind.HwndTitle ?? "";
+                    data.Properties["HWND"] = dict.GetValueOrDefault("HWND") ?? "";
+                    data.Properties["Title"] = dict.GetValueOrDefault("Title") ?? "";
 
-                grdQQWindows.ItemsSource = null;
-                grdQQWindows.ItemsSource = QQWindows;
+                    grdQQWindows.ItemsSource = null;
+                    grdQQWindows.ItemsSource = QQWindows;
+                }
             }
 
 
@@ -91,5 +93,24 @@ namespace CQCopyPasteAdapter.ViewModel
                 grdQQWindows.ItemsSource = QQWindows;
             }
         }
+
+        private void BtnDelete_Click(object sender, RoutedEventArgs e)
+        {
+            //弹出确认对话框
+            MessageBoxResult result = MessageBox.Show("是否删除所选映射?", "确认", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.Yes) //如果用户选择了“是”
+            {
+                //从ObservableCollection删除选中项
+                if (grdQQWindows.SelectedItem is MultiPropertyListViewItem item)
+                {
+                    QQWindows.Remove(item);
+
+                    //从SqliteKvStore删除相应项
+                    App.QQWindows.Remove(item.Properties["ChannelId"]);
+                }
+            }
+        }
+
     }
 }

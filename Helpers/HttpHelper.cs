@@ -28,23 +28,23 @@ namespace CQCopyPasteAdapter.Helpers
     {
         public class DeserializedHttpResponse
         {
-            public bool Success;
-            public bool IsHttpError;
-            public HttpStatusCode StatusCode;
-            public JToken Data;
-            public String RawData;
+            [UsedImplicitly] public bool Success;
+            [UsedImplicitly] public bool IsHttpError;
+            [UsedImplicitly] public HttpStatusCode StatusCode;
+            [UsedImplicitly] public JToken? Data;
+            [UsedImplicitly] public String? RawData;
         }
 
         #region 基础方法
 
 
         [UsedImplicitly]
-        private static DeserializedHttpResponse WebAction(String method, String url, String postData,
-            Dictionary<String, String> additionalHeader = null,
-            String contentType = "application/json",
-            String cookieHost = null, CookieCollection cookies = null,
-            Encoding encoding = null, int timeout = System.Threading.Timeout.Infinite,
-            List<X509Certificate2> certs = null)
+        private static DeserializedHttpResponse WebAction(String method, String url, String? postData,
+            Dictionary<String, String>? additionalHeader = null,
+            String? contentType = "application/json",
+            String? cookieHost = null, CookieCollection? cookies = null,
+            Encoding? encoding = null, int timeout = System.Threading.Timeout.Infinite,
+            List<X509Certificate2>? certs = null)
         {
             encoding ??= Encoding.UTF8;
 
@@ -53,7 +53,9 @@ namespace CQCopyPasteAdapter.Helpers
                 timeout = 1500;
             }
 
+#pragma warning disable SYSLIB0014
             var request = (HttpWebRequest)WebRequest.Create(url);
+#pragma warning restore SYSLIB0014
             request.KeepAlive = false;
             request.Method = method;
 
@@ -106,10 +108,10 @@ namespace CQCopyPasteAdapter.Helpers
                     SetCookies(cookieHost, cookies, response);
                 }
 
-                StreamReader reader = new StreamReader(rStream!, encoding);
+                StreamReader reader = new StreamReader(rStream, encoding);
                 string content = reader.ReadToEnd();
 
-                if (!JsonConvertHelper.TryDeserializeObject(content, out JToken value))
+                if (!JsonConvertHelper.TryDeserializeObject(content, out JToken? value))
                 {
                     value = null;
                 }
@@ -132,7 +134,7 @@ namespace CQCopyPasteAdapter.Helpers
                     string content = reader.ReadToEnd();
                     Logger.Current.Report($"[POST][HTTP{hResponse.StatusCode}][Url({url})]{content}");
 
-                    if (!JsonConvertHelper.TryDeserializeObject(content, out JToken value))
+                    if (!JsonConvertHelper.TryDeserializeObject(content, out JToken? value))
                     {
                         value = null;
                     }
@@ -176,12 +178,12 @@ namespace CQCopyPasteAdapter.Helpers
         #region 扩展方法
 
         [UsedImplicitly]
-        public static DeserializedHttpResponse PostAction(String url, String postData,
-            Dictionary<String, String> additionalHeader = null,
+        public static DeserializedHttpResponse PostAction(String url, String? postData,
+            Dictionary<String, String>? additionalHeader = null,
             String contentType = "application/json",
-            String cookieHost = null, CookieCollection cookies = null,
-            Encoding encoding = null, int timeout = System.Threading.Timeout.Infinite,
-            List<X509Certificate2> certs = null)
+            String? cookieHost = null, CookieCollection? cookies = null,
+            Encoding? encoding = null, int timeout = System.Threading.Timeout.Infinite,
+            List<X509Certificate2>? certs = null)
         {
             return WebAction("POST", url, postData, additionalHeader, contentType, cookieHost, cookies, encoding,
                 timeout, certs);
@@ -189,21 +191,21 @@ namespace CQCopyPasteAdapter.Helpers
 
 
         [UsedImplicitly]
-        public static DeserializedHttpResponse GetAction(String url, Dictionary<String, String> additionalHeader = null, String cookieHost = null, CookieCollection cookies = null,
-            Encoding encoding = null, int timeout = System.Threading.Timeout.Infinite,
-            List<X509Certificate2> certs = null)
+        public static DeserializedHttpResponse GetAction(String url, Dictionary<String, String>? additionalHeader = null, String? cookieHost = null, CookieCollection? cookies = null,
+            Encoding? encoding = null, int timeout = System.Threading.Timeout.Infinite,
+            List<X509Certificate2>? certs = null)
         {
             return WebAction("GET", url, null, additionalHeader, null, cookieHost, cookies, encoding,
                 timeout, certs);
         }
 
         [UsedImplicitly]
-        public static DeserializedHttpResponse PutAction(String url, String postData,
-            Dictionary<String, String> additionalHeader = null,
-            String contentType = "application/json",
-            String cookieHost = null, CookieCollection cookies = null,
-            Encoding encoding = null, int timeout = System.Threading.Timeout.Infinite,
-            List<X509Certificate2> certs = null)
+        public static DeserializedHttpResponse PutAction(String url, String? postData,
+            Dictionary<String, String>? additionalHeader = null,
+            String? contentType = "application/json",
+            String? cookieHost = null, CookieCollection? cookies = null,
+            Encoding? encoding = null, int timeout = System.Threading.Timeout.Infinite,
+            List<X509Certificate2>? certs = null)
         {
             return WebAction("PUT", url, postData, additionalHeader, contentType, cookieHost, cookies, encoding,
                 timeout, certs);
@@ -225,12 +227,12 @@ namespace CQCopyPasteAdapter.Helpers
                 maxRetry = 20;
             }
 
-            DeserializedHttpResponse response = null;
+            DeserializedHttpResponse? response = null;
 
             for (int retry = 0; retry < maxRetry; retry++)
             {
                 response = func();
-                if (response?.Success == true)
+                if (response.Success)
                 {
                     break;
                 }
@@ -250,7 +252,7 @@ namespace CQCopyPasteAdapter.Helpers
             return response;
         }
 
-        public static String? GetResponseData(this HttpHelper.DeserializedHttpResponse rawResponse, out Dictionary<String, Object> data)
+        public static String? GetResponseData(this DeserializedHttpResponse rawResponse, out Dictionary<String, Object> data)
         {
             data = new Dictionary<String, Object>();
 
@@ -259,7 +261,7 @@ namespace CQCopyPasteAdapter.Helpers
                 return rawResponse.RawData;
             }
 
-            var dictResponse = JsonConvertHelper.FormatToDictionary(rawResponse.Data) as Dictionary<String, object>;
+            var dictResponse = JsonConvertHelper.FormatToDictionary(rawResponse.Data!) as Dictionary<String, object>;
 
             if (dictResponse == null)
             {
@@ -277,7 +279,7 @@ namespace CQCopyPasteAdapter.Helpers
             {
                 if (dictResponse.ContainsKey("reason"))
                 {
-                    return dictResponse["reason"]?.ToString();
+                    return dictResponse["reason"].ToString();
                 }
                 return "未知错误";
             }
@@ -291,12 +293,12 @@ namespace CQCopyPasteAdapter.Helpers
         #region Async版本
 
         [UsedImplicitly]
-        public static async Task<DeserializedHttpResponse> PostActionAsync(String url, String postData,
+        public static async Task<DeserializedHttpResponse> PostActionAsync(String url, String? postData,
             String contentType = "application/x-www-form-urlencoded",
-            String cookieHost = null, CookieCollection cookies = null,
-            Dictionary<String, String> additionalHeader = null,
-            Encoding encoding = null, int timeout = System.Threading.Timeout.Infinite,
-            List<X509Certificate2> certs = null)
+            String? cookieHost = null, CookieCollection? cookies = null,
+            Dictionary<String, String>? additionalHeader = null,
+            Encoding? encoding = null, int timeout = System.Threading.Timeout.Infinite,
+            List<X509Certificate2>? certs = null)
         {
             var responseStr = await Task.Run(() => PostAction(url, postData, additionalHeader, contentType,
                 cookieHost, cookies, encoding, timeout, certs));
@@ -305,10 +307,10 @@ namespace CQCopyPasteAdapter.Helpers
         }
 
         [UsedImplicitly]
-        public static async Task<DeserializedHttpResponse> GetActionAsync(String url, String cookieHost = null,
-            CookieCollection cookies = null, Dictionary<String, String> additionalHeader = null,
-            Encoding encoding = null, int timeout = System.Threading.Timeout.Infinite,
-            List<X509Certificate2> certs = null)
+        public static async Task<DeserializedHttpResponse> GetActionAsync(String url, String? cookieHost = null,
+            CookieCollection? cookies = null, Dictionary<String, String>? additionalHeader = null,
+            Encoding? encoding = null, int timeout = System.Threading.Timeout.Infinite,
+            List<X509Certificate2>? certs = null)
         {
             var responseStr = await Task.Run(() =>
                 GetAction(url, additionalHeader, cookieHost, cookies, encoding, timeout, certs));

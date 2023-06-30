@@ -3,14 +3,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:CQCopyPasteAdapter.Dialogs"
         mc:Ignorable="d"
-        Title="InputBox" Height="150" Width="300">
+        Title="映射频道" Width="400">
     <Grid>
-        <StackPanel Margin="10">
-            <TextBlock Text="Enter a string:"/>
-            <TextBox x:Name="inputTextBox"/>
-            <Button Content="OK" IsDefault="True" Click="OkButton_Click"/>
-        </StackPanel>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="请输入一个频道Id:" Margin="10" FontSize="18" FontWeight="Bold"/>
+        <TextBox Grid.Row="1" x:Name="inputTextBox" Margin="10" Height="40" Padding="10"/>
+        <Button Grid.Row="2" Content="确定" IsDefault="True" Click="OkButton_Click" Margin="10" Height="50" Background="LightBlue" BorderBrush="Gray" BorderThickness="1" FontSize="16"/>
     </Grid>
 </Window>

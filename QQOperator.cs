@@ -3,34 +3,29 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using CQCopyPasteAdapter.Helpers;
 using CQCopyPasteAdapter.Logging;
-using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
-using static System.Net.Mime.MediaTypeNames;
-using static CQCopyPasteAdapter.QQOperator;
 
 namespace CQCopyPasteAdapter
 {
     public static class QQOperator
     {
-        public class MessageBatch
+        private class MessageBatch
         {
-            public string ChannelId { get; set; }
-            public List<Dictionary<String, object>> Messages { get; set; } = new List<Dictionary<string, object>>();
+            public string? ChannelId { get; init; }
+            public List<Dictionary<String, object>> Messages { get; } = new();
         }
 
-        private static Object Lock=new Object();
-        private static Task QQTask = Task.CompletedTask;
-        private static List<String> processedTask = new List<String>();
+        private static readonly Object Lock=new();
+        private static readonly List<String> ProcessedMessage = new();
+
+        private static Task _qqTask = Task.CompletedTask;
 
 
         public static void StartMainLoop()
@@ -39,49 +34,72 @@ namespace CQCopyPasteAdapter
             {
                 while (true)
                 {
-                    var url = App.Settings.GetValueOrSetDefault("ServerUrl","");
-                    var token = App.Settings.GetValueOrSetDefault("ServerToken", "");
-
-                    if (url == ""|| token == "")
+                    try
                     {
-                        Thread.Sleep(1000);
-                        continue;
-                    }
 
-                    var error = HttpHelper.PostAction(url.TrimEnd('/') + "/kidnapper/getmessage", JsonConvert.SerializeObject(new Dictionary<string, string>()
-                    {
-                    }), new Dictionary<string, string>()
-                    {
-                        {"authKey",token}
-                    }).GetResponseData(out var getTaskResponse);
+                        var url = App.Settings.GetValueOrSetDefault("ServerUrl", "");
+                        var token = App.Settings.GetValueOrSetDefault("ServerToken", "");
 
-                    if (error != null)
-                    {
-                        Logger.Current.Report("联网获取消息报错:" + error);
-                        continue;
-                    }
-
-                    if (!getTaskResponse.ContainsKey("messages"))
-                    {
-                        Logger.Current.Report("联网获取消息报错。");
-                        continue;
-                    }
-
-                    if (getTaskResponse["messages"] is List<object> messageList)
-                    {
-                        var batchToAdd = new List<MessageBatch>();
-
-                        foreach (var message in messageList.OfType<Dictionary<String, object>>())
+                        if (url == "" || token == "")
                         {
-                            if (processedTask.Contains(message.GetValueOrDefault("uuid")?.ToString() ?? ""))
+                            Thread.Sleep(1000);
+                            continue;
+                        }
+
+                        var messageToProcess = new List<Dictionary<string, object>>();
+                        while (true)
+                        {
+                            var error = HttpHelper.PostAction(url.TrimEnd('/') + "/kidnapper/getmessage",
+                                JsonConvert.SerializeObject(new Dictionary<string, string>()),
+                                new Dictionary<string, string>()
+                                {
+                                    { "authKey", token }
+                                }).GetResponseData(out var getTaskResponse);
+
+                            if (error != null)
                             {
+                                Logger.Current.Report("联网获取消息报错:" + error);
+                                Thread.Sleep(1000);
                                 continue;
                             }
 
-                            processedTask.Add(message.GetValueOrDefault("uuid")?.ToString() ?? "");
+                            if (!getTaskResponse.ContainsKey("messages"))
+                            {
+                                Logger.Current.Report("联网获取消息报错。");
+                                Thread.Sleep(1000);
+                                continue;
+                            }
 
+                            var msgInThisLoop = new List<Dictionary<string, object>>();
+
+                            if (getTaskResponse["messages"] is List<object> messageList)
+                            {
+                                foreach (var message in messageList.OfType<Dictionary<String, object>>())
+                                {
+                                    if (ProcessedMessage.Contains(message.GetValueOrDefault("uuid")?.ToString() ?? ""))
+                                    {
+                                        continue;
+                                    }
+
+                                    msgInThisLoop.Add(message);
+                                    ProcessedMessage.Add(message.GetValueOrDefault("uuid")?.ToString() ?? "");
+                                }
+                            }
+
+                            messageToProcess.AddRange(msgInThisLoop);
+
+                            if (msgInThisLoop.Count == 0 || messageToProcess.Count > 20)
+                            {
+                                break;
+                            }
+                        }
+
+                        var batchToAdd = new List<MessageBatch>();
+
+                        foreach (var message in messageToProcess)
+                        {
                             var channelId = message.GetValueOrDefault("channel_id")?.ToString();
-                            if (!batchToAdd.Any(b=>b.ChannelId==channelId))
+                            if (batchToAdd.All(b => b.ChannelId != channelId))
                             {
                                 batchToAdd.Add(new MessageBatch()
                                 {
@@ -99,25 +117,29 @@ namespace CQCopyPasteAdapter
                                 case "Image":
                                     batch.Messages.Add(message);
                                     break;
+                                case "MessageBreak":
+                                    batch.Messages.Add(message);
+                                    lock (Lock)
+                                    {
+                                        _qqTask = _qqTask.ContinueWith(_ =>
+                                        {
+                                            SendMessage(batch.ChannelId, batch.Messages);
+                                        });
+                                    }
+
+                                    batchToAdd.Remove(batch);
+                                    break;
                             }
                         }
 
-                        foreach (var batch in batchToAdd)
-                        {
-                            lock (Lock)
-                            {
-                                QQTask = QQTask.ContinueWith(_ =>
-                                {
-                                    SendMessage(batch.ChannelId, batch.Messages);
-                                });
-                            }
-                        }
-
+                        Thread.Sleep(500);
                     }
-
-
-                    Thread.Sleep(500);
+                    catch (Exception e)
+                    {
+                        Logger.Current.Log(Logger.Current.FormatException(e, "接收消息出错"));
+                    }
                 }
+                // ReSharper disable once FunctionNeverReturns
             });
         }
 
@@ -142,9 +164,9 @@ namespace CQCopyPasteAdapter
 
         private static void SendMessage(String channel, List<Dictionary<String,object>> batch)
         {
-            if (string.IsNullOrWhiteSpace(channel))
+            if (string.IsNullOrWhiteSpace(channel)||batch.Count==0)
             {
-                Logger.Current.Report("消息无法发送，目标频道为空。");
+                Logger.Current.Report("消息无法发送，目标频道为空/目标消息为空。");
                 return;
             }
 
@@ -164,8 +186,12 @@ namespace CQCopyPasteAdapter
                         WindowHelper.SendDelete();
                         Delay();
 
+                        bool lastMsgIsBreak = false;
+
                         foreach (var message in batch)
                         {
+                            lastMsgIsBreak = false;
+
                             switch (message.GetValueOrDefault("type"))
                             {
                                 case "Image":
@@ -179,7 +205,7 @@ namespace CQCopyPasteAdapter
                                         using (var stream = new MemoryStream(imageBytes))
                                         {
                                             stream.Position = 0; // Reset the stream position
-                                            using (var image = System.Drawing.Image.FromStream(stream))
+                                            using (var image = Image.FromStream(stream))
                                             {
                                                 //image.Save(file.FullName, System.Drawing.Imaging.ImageFormat.Png);
                                                 var bitmap = new Bitmap(image);
@@ -193,10 +219,11 @@ namespace CQCopyPasteAdapter
                                                 Clipboard.SetImage(bitmapSource);
                                             }
                                         }
-                                        
+
                                         WindowHelper.SendCtrlV();
                                         Delay();
                                     }
+
                                     break;
                                 case "Text":
                                     var text = message.GetValueOrDefault("data")?.ToString();
@@ -207,6 +234,7 @@ namespace CQCopyPasteAdapter
                                         WindowHelper.SendCtrlV();
                                         Delay();
                                     }
+
                                     break;
                                 case "At":
                                     var target = message.GetValueOrDefault("data")?.ToString();
@@ -225,11 +253,22 @@ namespace CQCopyPasteAdapter
                                         WindowHelper.SendEnter();
                                         Delay();
                                     }
+
+                                    break;
+
+                                case "MessageBreak":
+                                    lastMsgIsBreak = true;
+                                    WindowHelper.SendCtrlEnter();
                                     break;
                             }
                         }
 
-                        WindowHelper.SendCtrlEnter();
+                        if (lastMsgIsBreak == false)
+                        {
+                            WindowHelper.SendCtrlEnter();
+                        }
+
+                        Logger.Current.Report($"频道{channel}的消息已发送。");
                     });
                 }
             }

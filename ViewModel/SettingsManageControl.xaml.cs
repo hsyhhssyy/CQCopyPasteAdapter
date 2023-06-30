@@ -1,50 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CQCopyPasteAdapter.ViewModel
 {
     public class KeyValuePairModel : INotifyPropertyChanged
     {
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        private string _key;
-        public string Key
+        private readonly string? _key;
+        public string? Key
         {
-            get { return _key; }
-            set
+            get => _key;
+            init
             {
                 _key = value;
                 OnPropertyChanged(nameof(Key));
             }
         }
 
-        private string _value;
-        public string Value
+        private string? _value;
+        public string? Value
         {
-            get { return _value; }
+            get => _value;
             set
             {
                 _value = value;
                 OnPropertyChanged(nameof(Value));
-                App.Settings[Key] = _value;
+                if (Key != null)
+                    if (_value != null)
+                        App.Settings[Key] = _value;
             }
         }
 
-        protected virtual void OnPropertyChanged(string propertyName = null)
+        protected virtual void OnPropertyChanged(string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
@@ -53,9 +42,9 @@ namespace CQCopyPasteAdapter.ViewModel
     /// <summary>
     /// SettingsManageControl.xaml 的交互逻辑
     /// </summary>
-    public partial class SettingsManageControl : UserControl
+    public partial class SettingsManageControl
     {
-        public ObservableCollection<KeyValuePairModel> Settings { get; set; }
+        private ObservableCollection<KeyValuePairModel> Settings { get;  }
 
         public SettingsManageControl()
         {
