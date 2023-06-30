@@ -32,6 +32,8 @@ namespace CQCopyPasteAdapter
         {
             Task.Run(() =>
             {
+                var batchToAdd = new List<MessageBatch>();
+
                 while (true)
                 {
                     try
@@ -47,6 +49,7 @@ namespace CQCopyPasteAdapter
                         }
 
                         var messageToProcess = new List<Dictionary<string, object>>();
+
                         while (true)
                         {
                             var error = HttpHelper.PostAction(url.TrimEnd('/') + "/kidnapper/getmessage",
@@ -93,9 +96,7 @@ namespace CQCopyPasteAdapter
                                 break;
                             }
                         }
-
-                        var batchToAdd = new List<MessageBatch>();
-
+                        
                         foreach (var message in messageToProcess)
                         {
                             var channelId = message.GetValueOrDefault("channel_id")?.ToString();
@@ -243,12 +244,12 @@ namespace CQCopyPasteAdapter
                                         Clipboard.Clear();
                                         Clipboard.SetText("@");
                                         WindowHelper.SendCtrlV();
-                                        Delay();
+                                        Delay(1000);
 
                                         Clipboard.Clear();
                                         Clipboard.SetText(target);
                                         WindowHelper.SendCtrlV();
-                                        Delay();
+                                        Delay(2000);
 
                                         WindowHelper.SendEnter();
                                         Delay();
@@ -261,6 +262,8 @@ namespace CQCopyPasteAdapter
                                     WindowHelper.SendCtrlEnter();
                                     break;
                             }
+
+                            Logger.Current.Report($"频道{channel}的消息{message.GetValueOrDefault("id")}已发送。");
                         }
 
                         if (lastMsgIsBreak == false)
@@ -268,7 +271,6 @@ namespace CQCopyPasteAdapter
                             WindowHelper.SendCtrlEnter();
                         }
 
-                        Logger.Current.Report($"频道{channel}的消息已发送。");
                     });
                 }
             }
