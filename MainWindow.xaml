@@ -14,6 +14,11 @@
                     <viewModel:QQWindowManageControl/>
                 </Grid>
             </TabItem>
+            <TabItem Header="设置">
+                <Grid Background="#FFE5E5E5">
+                    <viewModel:SettingsManageControl/>
+                </Grid>
+            </TabItem>
             <TabItem Header="测试">
                 <Grid Background="#FFE5E5E5">
                     <StackPanel>

@@ -5,14 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         FontSize="20"
         mc:Ignorable="d"
-        Title="HookChecker" Height="400" Width="300">
+        Title="HookChecker" Height="300" Width="300">
     <StackPanel Margin="10">
         <TextBlock Text="Active window handle:" />
-        <TextBlock x:Name="HandleTextBlock" />
+        <TextBlock x:Name="handleTextBlock" />
         <TextBlock Text="Active window title:" />
-        <TextBlock x:Name="TitleTextBlock" />
+        <TextBlock x:Name="titleTextBlock" />
         <TextBlock Text="Active text box handle:" />
-        <TextBlock x:Name="TextBoxHandleTextBlock" />
-        <Button Content="Paste" Click="Button_Click"/>
+        <TextBlock x:Name="textBoxHandleTextBlock" />
     </StackPanel>
 </Window>

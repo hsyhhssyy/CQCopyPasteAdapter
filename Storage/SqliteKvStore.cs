@@ -223,7 +223,7 @@ namespace CQCopyPasteAdapter.Storage
         public ICollection<T> Values => _cache.Values;
 
         #endregion
-
+        
         public T GetValueOrSetDefault(String key, T defaultValue)
         {
             if (!this.ContainsKey(key))

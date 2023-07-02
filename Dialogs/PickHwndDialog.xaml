@@ -5,10 +5,22 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CQCopyPasteAdapter.Dialogs"
         mc:Ignorable="d"
-        Title="PickHwndDialog" Height="450" Width="800">
-    <Grid>
-        <Button Name="PickButton" HorizontalAlignment="Center" VerticalAlignment="Center" Click="PickButton_Click">
-            Pick HWND
-        </Button>
+        Title="PickHwndDialog" WindowStyle="ToolWindow" Width="300" Height="150" >
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
+            <Button Name="pickButton" Width="200" Height="50" Click="PickButton_Click" Content="获取窗口句柄" FontSize="20" Padding="10,0"/>
+            <Label Name="countdownLabel" FontSize="20" Content="" HorizontalContentAlignment="Center"/>
+        </StackPanel>
     </Grid>
 </Window>

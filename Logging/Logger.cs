@@ -26,7 +26,7 @@ namespace CQCopyPasteAdapter.Logging
         /// </summary>
         [UsedImplicitly] public static Logger Current { get; } = new();
 
-        public EventHandler OnLog;
+        public event EventHandler<LogReceivedEventArgs> OnLog;
 
         private readonly Dictionary<DateTime, string> _alertHistory = new();
         private readonly Dictionary<DateTime, string> _reportHistory = new();

@@ -20,8 +20,8 @@ namespace CQCopyPasteAdapter.Dialogs
     /// </summary>
     public partial class PickHwndDialog : Window
     {
-        public IntPtr HWND { get; private set; }
-        public string Title { get; private set; }
+        public IntPtr Hwnd { get; private set; }
+        public string? HwndTitle { get; private set; }
 
         public PickHwndDialog()
         {
@@ -30,10 +30,17 @@ namespace CQCopyPasteAdapter.Dialogs
 
         private async void PickButton_Click(object sender, RoutedEventArgs e)
         {
-            PickButton.IsEnabled = false;
-            await Task.Delay(3000);
-            HWND = WindowHelper.GetActiveWindowHandle();
-            Title = WindowHelper.GetActiveWindowTitle();
+            pickButton.IsEnabled = false;
+            int countdown = 3;
+            countdownLabel.Content = countdown.ToString();
+            while (countdown > 0)
+            {
+                await Task.Delay(1000);  // Wait for 1 second.
+                countdown--;
+                countdownLabel.Content = countdown.ToString();
+            }
+            Hwnd = WindowHelper.GetActiveWindowHandle();
+            HwndTitle = WindowHelper.GetActiveWindowTitle();
             DialogResult = true;
         }
     }
