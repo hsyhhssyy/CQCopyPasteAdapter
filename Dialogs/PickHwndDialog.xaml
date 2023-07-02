@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CQCopyPasteAdapter.Dialogs"
         mc:Ignorable="d"
-        Title="PickHwndDialog" WindowStyle="ToolWindow" Width="300" Height="150" >
+        Title="选择句柄" WindowStyle="ToolWindow" ResizeMode="NoResize" Width="300" Height="150" >
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -20,7 +20,7 @@
 
         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Vertical">
             <Button Name="pickButton" Width="200" Height="50" Click="PickButton_Click" Content="获取窗口句柄" FontSize="20" Padding="10,0"/>
-            <Label Name="countdownLabel" FontSize="20" Content="" HorizontalContentAlignment="Center"/>
+            <Label Name="countdownLabel" FontSize="20" Content="请在3秒内切换到对应窗口" HorizontalContentAlignment="Center"/>
         </StackPanel>
     </Grid>
 </Window>

@@ -6,24 +6,24 @@
 
 ## 如何使用
 
-1. 从Release页面下载软件的程序包，并以管理员身份打开。可能需要你安装.Net，请根据弹出的提示下载安装或从下面链接下载安装。
+1. 从Release页面下载软件的程序包，并以管理员身份打开CQCopyPasteAdapter.exe。可能需要你安装.Net，请根据弹出的提示下载安装或从下面链接下载安装。
 
 |  内容   | 下载地址  |
 |  ----  | ----  |
-| Adapter软件包 | [Release](https://github.com/hsyhhssyy/amiyabot-hsyhhssyy-chatgpt/issues/new/) |
+| Adapter软件包 | [Release](https://github.com/hsyhhssyy/CQCopyPasteAdapter/releases/) |
 | .Net Client Profile | [.Net](https://dotnet.microsoft.com/zh-cn/download) |
 
 2. 启动Windows桌面版QQ，并登录Bot账户，然后打开每一个群的窗口。注意不要使用标签页的形式打开窗口，而是每个群聊单独一个窗口。
 
-3. 切换到软件的“”标签页，点击“添加频道”按钮，并输入ChannelId（对于QQ群来说，就是群号）。有些临时拉的群通过WindowsQQ无法查看群号，但是他们也有群号，你可以去Mirai或者CQ的日志里查看。
+3. 切换到软件的“窗口”标签页，点击“添加频道”按钮，并输入ChannelId（对于QQ群来说，就是群号）。有些临时拉的群通过WindowsQQ无法查看群号，但是他们也有群号，你可以去Mirai或者CQ的日志里查看。
 
 4. 添加了群号以后，点击页面表格的“操作”栏的按钮，打开“选择句柄”窗口。
 
-5. 按下“选择句柄”按钮后，下面会出现一个3秒的倒计时，请在3秒内切换到该群对应的QQ窗口并将光标放在消息输入框中。倒计时结束后窗口会自动关闭，窗体句柄和标题会被自动填入软件，请在表格中检查标题是否正确。
+5. 按下“获取窗口句柄”按钮后，下面会出现一个3秒的倒计时，请在3秒内切换到该群对应的QQ窗口并将光标放在消息输入框中。倒计时结束后窗口会自动关闭，窗体句柄和标题会被自动填入软件，请在表格中检查标题是否正确。
 
 6. 重复上述操作，将所有频道都添加进表格中。
 
-7. 切换到“设置”标签页，然后在里面双击单元格后面的值来修改服务器地址和密钥。这两项内容和你在AmiyaBotConsole连接时填写的内容一致。最后一步做这个，是防止Bot在你操作的时候说话，导致键鼠被控制影响你的操作。
+7. 切换到“设置”标签页，然后在里面双击Value单元格来修改服务器地址和密钥。这两项内容和你在AmiyaBotConsole连接时填写的内容一致。最后一步做这个，是防止Bot在你操作的时候说话，导致键鼠被控制影响你的操作。
 
 8. 现在，你可以触发bot说一句话，看看是否有问题。
 
@@ -51,13 +51,13 @@
 
 遇到上面没有提到的问题，请你在下方链接提交反馈。
 
-> [遇到问题可以在这里反馈(Github)](https://github.com/hsyhhssyy/amiyabot-hsyhhssyy-chatgpt/issues/new/)
+> [遇到问题可以在这里反馈(Github)](https://github.com/hsyhhssyy/CQCopyPasteAdapter/issues/new/)
 
 ## 鸣谢
 
 感谢兔妈和ChatGPT在本项目开发中提供的友情支持。
 
-> [项目地址:Github](https://github.com/hsyhhssyy/amiyabot-hsyhhssyy-chatgpt/)
+> [项目地址:Github](https://github.com/hsyhhssyy/CQCopyPasteAdapter/)
 
 |  版本   | 变更  |
 |  ----  | ----  |
