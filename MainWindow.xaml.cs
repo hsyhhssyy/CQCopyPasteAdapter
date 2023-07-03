@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Windows;
 using CQCopyPasteAdapter.Logging;
 
@@ -22,7 +23,8 @@ namespace CQCopyPasteAdapter
         {
             Dispatcher.InvokeAsync(() =>
             {
-                txtLogs.Text += Environment.NewLine + e.Message;
+                txtLogs.Text += $"{Environment.NewLine}[{DateTime.Now:S}]{e.Message}";
+                txtLogs.ScrollToEnd();
             });
         }
 
@@ -36,6 +38,11 @@ namespace CQCopyPasteAdapter
         {
             var hc = new MessageTester();
             hc.Show();
+        }
+
+        private void MainWindow_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            Title = Title + $"[Version{Assembly.GetAssembly(this.GetType())?.GetName().Version}]";
         }
     }
 }

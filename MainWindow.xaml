@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:viewModel="clr-namespace:CQCopyPasteAdapter.ViewModel"
-        FontSize="20"
+        FontSize="20" Loaded="MainWindow_OnLoaded"
         mc:Ignorable="d"
         Title="主窗口" Height="450" Width="800">
     <Grid>
@@ -29,7 +29,7 @@
             </TabItem>
             <TabItem Header="日志">
                 <Grid Background="#FFE5E5E5">
-                    <TextBox Name="txtLogs" IsReadOnly="True" Margin="10"/>
+                    <TextBox Name="txtLogs" FontSize="16" IsReadOnly="True" Margin="10" VerticalScrollBarVisibility="Visible"/>
                 </Grid>
             </TabItem>
         </TabControl>
