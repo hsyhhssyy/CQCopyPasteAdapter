@@ -11,10 +11,12 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using CQCopyPasteAdapter.Dialogs;
 using CQCopyPasteAdapter.Helpers;
 using CQCopyPasteAdapter.Storage;
@@ -41,6 +43,33 @@ namespace CQCopyPasteAdapter.ViewModel
                 QQWindows.Add(item);
             }
 
+            grdQQWindows.ItemsSource = QQWindows;
+
+            var timer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(20)
+            };
+
+            timer.Tick += Timer_Tick;
+            timer.Start();
+        }
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            foreach (var item in QQWindows)
+            {
+                if (item.Data is NotifiedDictionary<string, string> dict)
+                {
+                    var hwndStr = dict["HWND"];
+                    if (!String.IsNullOrWhiteSpace(hwndStr) && IntPtr.TryParse(hwndStr, out var hwnd))
+                    {
+                        var title = WindowHelper.GetWindowTitle(hwnd) ?? "?";
+                        item.Properties["Title"] = title;
+                    }
+                }
+            }
+
+            grdQQWindows.ItemsSource = null;
             grdQQWindows.ItemsSource = QQWindows;
         }
 

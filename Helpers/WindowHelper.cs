@@ -77,6 +77,18 @@ public static class WindowHelper
         return GetForegroundWindow();
     }
 
+    public static string GetWindowTitle(IntPtr hWnd)
+    {
+        const int nChars = 256;
+        StringBuilder Buff = new StringBuilder(nChars);
+
+        if (GetWindowText(hWnd, Buff, nChars) > 0)
+        {
+            return Buff.ToString();
+        }
+        return null;
+    }
+
     public static string GetActiveWindowTitle()
     {
         const int nChars = 256;

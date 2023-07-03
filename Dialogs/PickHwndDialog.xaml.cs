@@ -32,12 +32,12 @@ namespace CQCopyPasteAdapter.Dialogs
         {
             pickButton.IsEnabled = false;
             int countdown = 3;
-            countdownLabel.Content = countdown.ToString();
+            countdownLabel.Content = $"请在{countdown.ToString()}秒内切换到对应窗口";
             while (countdown > 0)
             {
                 await Task.Delay(1000);  // Wait for 1 second.
                 countdown--;
-                countdownLabel.Content = countdown.ToString();
+                countdownLabel.Content = $"请在{countdown.ToString()}秒内切换到对应窗口";
             }
             Hwnd = WindowHelper.GetActiveWindowHandle();
             HwndTitle = WindowHelper.GetActiveWindowTitle();
